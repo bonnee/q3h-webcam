@@ -1,2 +1,7 @@
 # Q3H camera in USB storage/menu mode -> start the user service that patches it and selects webcam
 ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="1f3a", ATTR{idProduct}=="1002", TAG+="systemd", ENV{SYSTEMD_USER_WANTS}+="q3h-webcam.service"
+
+# uvcvideo enables USB autosuspend on every camera it binds. When no app has the camera open,
+# the host suspends it after 2 s; the Q3H treats a suspend as an unplug and leaves webcam mode.
+# Keep the camera awake while it is in webcam mode (1f3a:100e webcam+adb, 1f3a:100d webcam).
+ACTION=="bind", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_interface", DRIVER=="uvcvideo", ATTRS{idVendor}=="1f3a", ATTRS{idProduct}=="100[de]", RUN+="/bin/sh -c 'echo on > /sys%p/../power/control'"

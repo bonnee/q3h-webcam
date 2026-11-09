@@ -29,6 +29,7 @@ See [PATCHES.md](PATCHES.md) for every patch, address and the reasoning behind i
 ```sh
 systemctl --user link "$PWD/systemd/q3h-webcam.service"
 sudo cp udev/99-q3h-webcam.rules /etc/udev/rules.d/ && sudo udevadm control --reload
+# (re-run the cp after pulling changes to the rules file)
 ```
 
 Plug the camera in. Within ~5 s it should appear as a 1920×1080 webcam:
@@ -49,8 +50,9 @@ ls -l /dev/v4l/by-id/                  # ...Android_20080411-video-index0 is the
 
 ## Notes
 
-- The PC's adb server must keep running while streaming: if it dies, the camera treats the
-  dropped ADB link as a USB disconnect and leaves webcam mode (the unit uses `KillMode=process`).
+- The udev rule also turns off USB autosuspend for the camera in webcam mode. Without it the
+  PC suspends the camera ~2 s after the last app closes it, and the camera treats that as an
+  unplug and drops back to its menu.
 - The script restarts the adb server when it loses track of the camera, briefly dropping
   other adb connections.
 - `firmware/` (not tracked) holds the full flash backup of the original camera and the vendor

@@ -52,14 +52,23 @@ The menu appears on connect/boot and again after an app closes the webcam stream
      Not needed if base+0x28130 is patched before webcam mode is selected.
 
 ## Gotchas learned the hard way
-- The host adb server must outlive the script. If it dies while the camera is in webcam mode,
-  the camera sees its ADB link drop, treats it as a USB disconnect and leaves webcam mode
-  (udev then re-selects -> endless loop). Hence KillMode=process in the systemd unit.
+- Host USB autosuspend kicks the camera out of webcam mode. uvcvideo enables autosuspend on
+  every camera it binds (power/control=auto, 2 s delay); when no app has the camera open the
+  host suspends it, and the camera's Android gadget treats a suspend as an unplug and returns
+  to its menu (udev then re-selects -> loop). Fixed by the udev rule that sets
+  power/control=on when uvcvideo binds 1f3a:100d/100e.
+  (An adb server holding the camera's ADB interface also blocks autosuspend, which is why
+  "keeping adb alive" looked like the fix at first. It was a side effect, not the cause.)
 - The camera's adbd is old: `adb shell` always exits 0, so check command output, never exit codes.
 - Its adbd has no `exec-out`; stage files in /dev (tmpfs) and `adb pull` them.
 - Inside `while read ... < <(...)` loops, adb swallows stdin: read the loop from fd 3.
-- The camera has also rebooted once mid-stream (00:19:42 on 2026-11-09), cause unknown;
+- Drops that looked like mid-stream reboots were at least partly autosuspend drops; one
+  genuine reboot (00:19:42 on 2026-11-09, uptime reset) remains unexplained.
   /proc/last_kmsg does not exist on this firmware, so it needs a live `adb logcat` capture.
+- Webcam-only USB mode (no ADB interface): patching sdv's "webcam,adb" string (offset 0x45ec3
+  in /system/bin/sdv, ',' -> '\0') makes it select sys.usb.config=webcam (1f3a:100d).
+  With the autosuspend rule it is stable (2 min idle, adb churn, stream open/close: no drops).
+  Not used by default: no ADB while streaming (no live quality changes or log access).
 
 ## Limits
 - USB isoc endpoint: 1x1024 B per microframe, ~8.2 MB/s. The camera streams as fast as the
