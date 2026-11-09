@@ -14,7 +14,7 @@ on every connect.
 | Frame rate | 30 | 30–49 (link-limited, scene dependent) |
 | Enumeration | ~30 s (control timeouts) | ~1 s |
 | Selecting webcam mode | press buttons on camera | automatic |
-| Glitched frames | ~9 events / 2 min | 0 |
+| Glitched frames | not measured in pure stock; ~9 events / 2 min with the other patches but without the packet fix | 0 in 14,860 frames |
 
 See [PATCHES.md](PATCHES.md) for every patch, address and the reasoning behind it.
 
