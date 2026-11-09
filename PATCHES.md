@@ -22,7 +22,8 @@ Hardware watchdog (8 s) is fed by `sdv`: never stop `sdv` for long, or the camer
    In uvc_video_encode_isoc (0xc01dd67c), `req->length = req_size - len` ->
    `req->length = req_size`: kernel text phys 0x401dd71c, `str r6,[r8,#4]` (e5886004) ->
    `str r7,[r8,#4]` (e5887004). Padding lands after the JPEG EOI and is ignored by decoders.
-   Measured over 2-3 min captures: stock 18 broken frames / 5781; patched 0 / 14,860.
+   Measured over 2-3 min captures, all other patches applied: without this fix 18 broken
+   frames / 5781; with it 0 / 14,860. Pure stock (720p, no patches) not measured yet.
    Side effect: the HAL queues its 7 buffers empty at stream start; they now arrive as
    7 junk 1022-byte frames (~150 ms) that decoders reject.
    Tried and rejected: padding only non-empty packets (cmp r6,#0 / moveq r7,#2) gave

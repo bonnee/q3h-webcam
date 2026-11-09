@@ -11,7 +11,7 @@ on every connect.
 | | Stock | Patched |
 |---|---|---|
 | Resolution | 1280×720 | 1920×1080 |
-| Frame rate | 30 | 30–49 (link-limited, scene dependent) |
+| Frame rate | advertises 30, delivers ~50 (as fast as USB allows) | advertises 30, delivers 30–49 (link-limited, scene dependent) |
 | Enumeration | ~30 s (control timeouts) | ~1 s |
 | Selecting webcam mode | press buttons on camera | automatic |
 | Glitched frames | not measured in pure stock; ~9 events / 2 min with the other patches but without the packet fix | 0 in 14,860 frames |
