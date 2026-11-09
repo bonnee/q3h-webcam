@@ -1,0 +1,10 @@
+[Unit]
+Description=Q3H camera: apply 1080p patches and enter webcam mode
+
+[Service]
+Type=oneshot
+ExecStart=%h/src/q3h-webcam/q3h-webcam.sh 75
+TimeoutStartSec=150
+# Leave the adb server running after the script exits: if it dies, the camera sees its
+# ADB link drop, treats it as a USB disconnect and leaves webcam mode.
+KillMode=process

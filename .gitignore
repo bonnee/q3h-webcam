@@ -1,0 +1,4 @@
+# Vendor binaries and device flash dump: copyrighted / device-specific, keep local only
+firmware/
+# Runtime switch: presence disables the automation
+/disable
