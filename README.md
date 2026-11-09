@@ -14,7 +14,9 @@ on every connect.
 | Frame rate | advertises 30, delivers ~50 (as fast as USB allows) | advertises 30, delivers 30–49 (link-limited, scene dependent) |
 | Enumeration | ~30 s (control timeouts) | ~1 s |
 | Selecting webcam mode | press buttons on camera | automatic |
-| Glitched frames | not measured in pure stock; ~9 events / 2 min with the other patches but without the packet fix | 0 in 14,860 frames |
+
+It also fixes a camera-side USB bug that occasionally merges two frames into one broken pair
+(with the other patches applied: 18 broken frames in 5,781 without the fix, 0 in 14,860 with it).
 
 See [PATCHES.md](PATCHES.md) for every patch, address and the reasoning behind it.
 
