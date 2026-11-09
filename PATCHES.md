@@ -16,19 +16,25 @@ Hardware watchdog (8 s) is fed by `sdv`: never stop `sdv` for long, or the camer
    - Camera Terminal bmControls[0] phys 0x40381181: 02 -> 00 (Auto-Exposure Mode)
    - Processing Unit bmControls[0] phys 0x4038118c: 01 -> 00 (Brightness)
    Result: /dev/video0 appears ~1 s after selecting webcam.
-1c. Glitched frames: the camera's USB device controller sometimes merges a frame's short
-   final isoc packet with the next frame's first packet (seen as a stray `02 80` UVC header
-   between one JPEG's EOI and the next SOI). Fix: never send short packets.
-   In uvc_video_encode_isoc (0xc01dd67c), `req->length = req_size - len` ->
-   `req->length = req_size`: kernel text phys 0x401dd71c, `str r6,[r8,#4]` (e5886004) ->
-   `str r7,[r8,#4]` (e5887004). Padding lands after the JPEG EOI and is ignored by decoders.
-   Measured over 2-3 min captures, all other patches applied: without this fix 18 broken
-   frames / 5781; with it 0 / 14,860. Pure stock (720p, no patches) not measured yet.
-   Side effect: the HAL queues its 7 buffers empty at stream start; they now arrive as
-   7 junk 1022-byte frames (~150 ms) that decoders reject.
-   Tried and rejected: padding only non-empty packets (cmp r6,#0 / moveq r7,#2) gave
-   15 broken frames / 6018 (first packet of a frame lost), cause not understood.
-
+1c. Broken frames (bright flashes in apps): with "ISO Update" enabled (bit 7 of the
+   controller's power register, base+0x40), the USB controller holds a freshly loaded
+   isochronous packet until the next microframe start; if the host polls first it sends a
+   zero-length packet instead and the loaded packet is effectively lost. It hits the first
+   packet of a frame after an idle gap: stock firmware shows it as two frames merged (stray
+   `02 80` UVC header between EOI and SOI), and with packet padding as a frame missing its
+   first packet (no JPEG headers -> decoders render a flash). Rate depends on host polling
+   timing (much worse on host kernel 7.2.14 than 7.2.11). Confirmed with a usbmon capture:
+   the camera itself sent a ZLP where the frame's first packet belonged.
+   Fix: never enable ISO Update. sunxi_udc_ep_enable calls USBC_Dev_IsoUpdateEnable for ISO
+   endpoints at every stream start: `bl` at 0xc01efc8c (phys 0x401efc8c, ebffe3f3) -> nop
+   (e1a00000). The register can't be written via /dev/mem (MMIO not allowed), so the patch
+   must be in place before the first stream after camera boot (the script does this).
+   Measured (2 min each, host 7.2.14): padding only 30-46 broken frames; ISO fix + padding 0;
+   ISO fix alone 0 broken, 0 merged, 0 startup junk frames.
+   Superseded workarounds: padding every packet to 1024 bytes (uvc_video_encode_isoc,
+   0x401dd71c e5886004 -> e5887004) hid merges but caused lost packets and 7 junk frames at
+   stream start; using TxPktRdy|FIFONotEmpty for the TX-ready check (0x401f0620,
+   0x401f07a4 -> USBC_Dev_IsWriteDataReady_FifoEmpty) had no effect.
 ## Selecting webcam mode without touching the camera
 Menu (storage / webcam / charge) is driven by sunxi-keyboard = /dev/input/event0.
 Inject struct input_event (`<IIHHi`, EV_KEY=1 then EV_SYN) by writing to /dev/input/event0:

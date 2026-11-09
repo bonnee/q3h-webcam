@@ -15,8 +15,9 @@ on every connect.
 | Enumeration | ~30 s (control timeouts) | ~1 s |
 | Selecting webcam mode | press buttons on camera | automatic |
 
-It also fixes a camera-side USB bug that occasionally merges two frames into one broken pair
-(with the other patches applied: 18 broken frames in 5,781 without the fix, 0 in 14,860 with it).
+It also fixes a camera-side USB controller bug ("ISO Update" timing) that occasionally loses
+the start of a frame, which apps show as a bright flash or a merged frame pair (30-46 broken
+frames per 2 minutes before, 0 after).
 
 See [PATCHES.md](PATCHES.md) for every patch, address and the reasoning behind it.
 

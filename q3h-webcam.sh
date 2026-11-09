@@ -49,7 +49,7 @@ patches(){ cat <<P
 kernel frame descriptor 1080p|/dev/mem|$((0x403811b7))|0005d00200005e1a00005e1a00201c00|$FD
 kernel: drop Auto-Exposure control (slow enumeration)|/dev/mem|$((0x40381181))|02|00
 kernel: drop Brightness control (slow enumeration)|/dev/mem|$((0x4038118c))|01|00
-kernel: full-size UVC packets (fixes glitched frames)|/dev/mem|$((0x401dd71c))|046088e5|047088e5
+kernel: no ISO Update on video endpoint (fixes broken frames)|/dev/mem|$((0x401efc8c))|f3e3ffeb|0000a0e1
 HAL size table 1920x1080|$M|$((B+0x34828))|00050000d0020000|8007000038040000
 HAL JPEG size limit 400KB|$M|$((B+0x28130))|400d0300|801a0600
 HAL JPEG quality $Q|$M|$((B+0x276fc))|5021|$QHEX
