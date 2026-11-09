@@ -13,7 +13,7 @@ die(){ echo "[q3h] ERROR: $*" >&2; exit 1; }
 # The camera re-enumerates its USB during boot, and the adb server sometimes misses it
 # afterwards; restarting the adb server fixes that.
 ensure_adb(){ local i
-  for i in 1 2 3 4 5 6; do adb devices 2>/dev/null | grep -q "^$ANDROID_SERIAL[[:space:]]*device" && return 0; sleep 1; done
+  for i in 1 2 3 4 5 6; do adb devices 2>/dev/null | grep -q "^$ANDROID_SERIAL[[:space:]]*device" && return 0; sleep 0.5; done
   lsusb -d 1f3a: >/dev/null 2>&1 || return 1
   log "adb server lost the camera, restarting it"
   adb kill-server >/dev/null 2>&1 || true; adb start-server >/dev/null 2>&1 || true
